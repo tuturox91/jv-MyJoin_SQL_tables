@@ -20,13 +20,13 @@ public class CarsServiceImpl implements CarsService {
     }
 
     @Override
-    public Optional<Car> get(Long id) {
-        return Optional.empty();
+    public Car get(Long id) {
+        return carsDao.get(id).orElseThrow(() -> new RuntimeException("Cant get car by id:" + id));
     }
 
     @Override
     public List<Car> getAll() {
-        return null;
+        return carsDao.getAll();
     }
 
     @Override

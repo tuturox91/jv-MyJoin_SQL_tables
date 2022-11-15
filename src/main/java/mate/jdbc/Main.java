@@ -8,6 +8,7 @@ import mate.jdbc.service.CarsService;
 import mate.jdbc.service.DriverService;
 import mate.jdbc.service.ManufacturerService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,13 +19,13 @@ public class Main {
         ManufacturerService manufacturerService = (ManufacturerService) injector.getInstance(ManufacturerService.class);
         DriverService driverService = (DriverService) injector.getInstance(DriverService.class);
         CarsService carsService = (CarsService) injector.getInstance(CarsService.class);
-        List<Driver> drivers = driverService.getAll();
-        Car car = new Car();
-        car.setDrivers(drivers.stream().filter(x -> x.getId() == 1).collect(Collectors.toList()));
-        car.setModel("RX7");
-        List<Manufacturer> manufacturers = manufacturerService.getAll();
-        Optional<Manufacturer> manufacturer = manufacturers.stream().filter(x -> x.getName().equals("Mazda")).findFirst();
-        car.setManufacturer(manufacturer.orElseThrow(() -> new RuntimeException("Can't find Mazda manufacturer")));
-        carsService.create(car);
+        //List<Driver> drivers = new ArrayList<>();
+        //drivers.add(driverService.get(1L));
+        //Manufacturer manufacturer = manufacturerService.get(1L);
+        //Car car = new Car(null, "RX7", manufacturer);
+        //carsService.create(car);
+        //System.out.println(carsService.get(2L));
+        //System.out.println("-------------------------");
+        carsService.getAll().forEach(System.out::println);
     }
 }

@@ -4,11 +4,15 @@ import mate.jdbc.exception.DataProcessingException;
 import mate.jdbc.lib.Dao;
 import mate.jdbc.model.Car;
 import mate.jdbc.model.Driver;
+import mate.jdbc.model.Manufacturer;
 import mate.jdbc.util.ConnectionUtil;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static java.sql.DriverManager.getDriver;
 
 @Dao
 public class CarsDaoImpl implements CarsDao{
@@ -52,12 +56,48 @@ public class CarsDaoImpl implements CarsDao{
 
     @Override
     public Optional<Car> get(Long id) {
-        return null;
+        String query = "SELECT c.id AS car_id, model, m.id AS manufacturer_id, m.name, " +
+                "m.country FROM cars c JOIN manufacturers m ON c.manufacturers_id = m.id " +
+                "WHERE c.id = ? AND c.is_deleted = FALSE;";
+        Car car = null;
+        try (Connection connection = ConnectionUtil.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setLong(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                car = getCar(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new DataProcessingException("Couldn't get car by id " + id, e);
+        }
+        if(car != null) {
+            car.setDrivers(getDriversForCar(id));
+        }
+        return Optional.ofNullable(car);
     }
 
     @Override
     public List<Car> getAll() {
-        return null;
+        String query = "SELECT c.id AS car_id, model, m.id AS manufacturer_id, m.name, " +
+                "m.country FROM cars c JOIN manufacturers m ON c.manufacturers_id = m.id " +
+                "WHERE c.is_deleted = FALSE;";
+        List<Car> cars = new ArrayList<>();
+        try (Connection connection = ConnectionUtil.getConnection();
+             PreparedStatement statement
+                     = connection.prepareStatement(query)) {
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                cars.add(getCar(resultSet));
+            }
+        } catch (SQLException e) {
+            throw new DataProcessingException("Couldn't get a list of cars "
+                    + "from car table. ", e);
+        }
+        for(Car car:cars) {
+            car.setDrivers(getDriversForCar(car.getId()));
+        }
+        return cars;
     }
 
     @Override
@@ -71,17 +111,45 @@ public class CarsDaoImpl implements CarsDao{
     }
 
     @Override
-    public void addDriverToCar(Driver driver, Car car) {
-
-    }
-
-    @Override
-    public void removeDriverFromCar(Driver driver, Car car) {
-
-    }
-
-    @Override
     public List<Car> getAllByDriver(Long driverId) {
         return null;
     }
+
+    private List<Driver> getDriversForCar(Long id) {
+        String query = "SELECT d.* FROM drivers d JOIN cars_drivers cd ON d.id = cd.driver_id " +
+                "WHERE cd.car_id = ? AND d.is_deleted = false;";
+        List<Driver> drivers = new ArrayList<>();
+        try (Connection connection = ConnectionUtil.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setLong(1,id);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                drivers.add(getDriver(resultSet));
+            }
+            return drivers;
+        } catch (SQLException e) {
+            throw new DataProcessingException("Couldn't get a list of drivers by id: " + id, e);
+        }
+    }
+
+    private Car getCar(ResultSet resultSet) throws SQLException {
+        Long carId = resultSet.getObject("car_id", Long.class);
+        String model = resultSet.getString("model");
+        return new Car(carId, model, getManufacturer(resultSet));
+    }
+
+    private Driver getDriver(ResultSet resultSet) throws SQLException {
+        Long id = resultSet.getObject("id", Long.class);
+        String name = resultSet.getString("name");
+        String licenseNumber = resultSet.getString("license_number");
+        return new Driver(id, name, licenseNumber);
+    }
+
+    private Manufacturer getManufacturer(ResultSet resultSet) throws SQLException {
+        Long id = resultSet.getObject("manufacturer_id", Long.class);
+        String name = resultSet.getString("name");
+        String country = resultSet.getString("country");
+        return new Manufacturer(id, name, country);
+    }
+
 }
