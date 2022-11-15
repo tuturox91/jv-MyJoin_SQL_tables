@@ -31,12 +31,12 @@ public class CarsServiceImpl implements CarsService {
 
     @Override
     public Car update(Car car) {
-        return null;
+        return carsDao.update(car);
     }
 
     @Override
     public boolean delete(Long id) {
-        return false;
+        return carsDao.delete(id);
     }
 
     @Override
@@ -51,6 +51,6 @@ public class CarsServiceImpl implements CarsService {
 
     @Override
     public List<Car> getAllByDriver(Long driverId) {
-        return null;
+        return carsDao.getAllByDriver(driverId);
     }
 }

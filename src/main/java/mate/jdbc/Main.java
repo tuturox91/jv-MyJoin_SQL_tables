@@ -19,13 +19,22 @@ public class Main {
         ManufacturerService manufacturerService = (ManufacturerService) injector.getInstance(ManufacturerService.class);
         DriverService driverService = (DriverService) injector.getInstance(DriverService.class);
         CarsService carsService = (CarsService) injector.getInstance(CarsService.class);
-        //List<Driver> drivers = new ArrayList<>();
-        //drivers.add(driverService.get(1L));
-        //Manufacturer manufacturer = manufacturerService.get(1L);
-        //Car car = new Car(null, "RX7", manufacturer);
-        //carsService.create(car);
-        //System.out.println(carsService.get(2L));
-        //System.out.println("-------------------------");
-        carsService.getAll().forEach(System.out::println);
+        List<Driver> drivers = new ArrayList<>();
+        drivers.add(driverService.get(1L));
+        Manufacturer manufacturer = manufacturerService.get(1L);
+//        System.out.println("l----------Create and Get-----------");
+//        Car car = new Car(null, "RX7", manufacturer, drivers);
+//        carsService.create(car);
+//        System.out.println(carsService.get(2L));
+//        System.out.println("l----------Update and get all----------");
+//        drivers.add(driverService.get(2L));
+//        Car car = new Car(3L, "RX7", manufacturer, drivers);
+//        carsService.update(car);
+//        carsService.getAll().forEach(System.out::println);
+//        System.out.println("----------Delete and get all----------");
+//        carsService.delete(1L);
+//        carsService.getAll().forEach(System.out::println);
+        //System.out.println("----------Get by driver id----------");
+        carsService.getAllByDriver(1L).forEach(System.out::println);
     }
 }
