@@ -1,17 +1,15 @@
 package mate.jdbc.dao;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import mate.jdbc.exception.DataProcessingException;
 import mate.jdbc.lib.Dao;
 import mate.jdbc.model.Car;
 import mate.jdbc.model.Driver;
 import mate.jdbc.model.Manufacturer;
 import mate.jdbc.util.ConnectionUtil;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 
 @Dao
 public class CarsDaoImpl implements CarsDao {
@@ -40,7 +38,8 @@ public class CarsDaoImpl implements CarsDao {
     private void insertDriversToCar(Car car) {
         String query = "INSERT INTO cars_drivers (car_id, driver_id) VALUES (?, ?);";
         try (Connection connection = ConnectionUtil.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement(query,
+                     Statement.RETURN_GENERATED_KEYS)) {
             statement.setLong(1, car.getId());
             for (Driver driver : car.getDrivers()) {
                 statement.setLong(2, driver.getId());
@@ -55,9 +54,9 @@ public class CarsDaoImpl implements CarsDao {
 
     @Override
     public Optional<Car> get(Long id) {
-        String query = "SELECT c.id AS car_id, model, m.id AS manufacturer_id, m.name, " +
-                "m.country FROM cars c JOIN manufacturers m ON c.manufacturer_id = m.id " +
-                "WHERE c.id = ? AND c.is_deleted = FALSE;";
+        String query = "SELECT c.id AS car_id, model, m.id AS manufacturer_id, m.name, "
+                + "m.country FROM cars c JOIN manufacturers m ON c.manufacturer_id = m.id "
+                + "WHERE c.id = ? AND c.is_deleted = FALSE;";
         Car car = null;
         try (Connection connection = ConnectionUtil.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
@@ -77,9 +76,9 @@ public class CarsDaoImpl implements CarsDao {
 
     @Override
     public List<Car> getAll() {
-        String query = "SELECT c.id AS car_id, model, m.id AS manufacturer_id, m.name, " +
-                "m.country FROM cars c JOIN manufacturers m ON c.manufacturer_id = m.id " +
-                "WHERE c.is_deleted = FALSE;";
+        String query = "SELECT c.id AS car_id, model, m.id AS manufacturer_id, m.name, "
+                + "m.country FROM cars c JOIN manufacturers m ON c.manufacturer_id = m.id "
+                + "WHERE c.is_deleted = FALSE;";
         List<Car> cars = new ArrayList<>();
         try (Connection connection = ConnectionUtil.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
@@ -99,8 +98,8 @@ public class CarsDaoImpl implements CarsDao {
 
     @Override
     public Car update(Car car) {
-        String query = "UPDATE cars SET model = ?, manufacturer_id = ? " +
-                "WHERE id = ? AND is_deleted = FALSE;";
+        String query = "UPDATE cars SET model = ?, manufacturer_id = ? "
+                + "WHERE id = ? AND is_deleted = FALSE;";
         try (Connection connection = ConnectionUtil.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, car.getModel());
@@ -130,11 +129,11 @@ public class CarsDaoImpl implements CarsDao {
 
     @Override
     public List<Car> getAllByDriver(Long driverId) {
-        String query = "SELECT cars.id AS 'car_id', cars.model AS 'model', " +
-                "manufacturers.id AS 'manufacturer_id', manufacturers.name, manufacturers.country " +
-                "FROM cars JOIN cars_drivers ON cars_drivers.car_id = cars.id " +
-                "JOIN manufacturers ON cars.manufacturer_id = manufacturers.id " +
-                " WHERE cars_drivers.driver_id = ? AND cars.is_deleted = FALSE;";
+        String query = "SELECT cars.id AS 'car_id', cars.model AS 'model', "
+                + "manufacturers.id AS 'manufacturer_id', manufacturers.name, manufacturers.country "
+                + "FROM cars JOIN cars_drivers ON cars_drivers.car_id = cars.id "
+                + "JOIN manufacturers ON cars.manufacturer_id = manufacturers.id "
+                + " WHERE cars_drivers.driver_id = ? AND cars.is_deleted = FALSE;";
         List<Car> cars = new ArrayList<>();
         try (Connection connection = ConnectionUtil.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
@@ -162,8 +161,8 @@ public class CarsDaoImpl implements CarsDao {
     }
 
     private List<Driver> getDriversForCar(Long id) {
-        String query = "SELECT d.* FROM drivers d JOIN cars_drivers cd ON d.id = cd.driver_id " +
-                "WHERE cd.car_id = ? AND d.is_deleted = false;";
+        String query = "SELECT d.* FROM drivers d JOIN cars_drivers cd ON d.id = cd.driver_id "
+                + "WHERE cd.car_id = ? AND d.is_deleted = false;";
         List<Driver> drivers = new ArrayList<>();
         try (Connection connection = ConnectionUtil.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
